@@ -50,7 +50,13 @@ let main argv =
     //let b0 = buildUpB t.rho t.dt t.dx t.dy t.u0 t.v0
 
     //printfn "b0 : \n %A" b0
-    printfn "t.b0 : \n %s" ((t.p0.First).ToString())
+    printfn "t.b0 : \n %A" (float (t.p0.First.First))
+    
+    // http://stackoverflow.com/questions/9976018/parsing-multidimensional-json-array-with-newtonsoft-json-net
+    for i in (t.p0) do
+        for j in i do
+            printf " %.0f " (float j)
+        printfn ""
     
     waitForKey()
     0 // Exitcode aus ganzen Zahlen zurückgeben
