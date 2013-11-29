@@ -1,2 +1,2 @@
-fs-Computational-Fluid-Dynamics
-===============================
+FSharp-Computational-Fluid-Dynamics
+===================================
