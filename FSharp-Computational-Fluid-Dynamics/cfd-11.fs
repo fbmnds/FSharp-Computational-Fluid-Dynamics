@@ -59,7 +59,7 @@ let pressPoisson dx dy (b: DenseMatrix) (p: DenseMatrix) =
     pn.SetRow((dimX2+1), (pn.Row dimX2))
     pn.SetRow(0, (pn.Row 1))
     pn.SetColumn(0, (pn.Column 1))
-    // redundant, if (as) the initial matrix p has already zeroed last column:
+    // redundant, if (because) the initial matrix p has already zeroed last column:
     pn.SetColumn((dimY2+1), (DenseVector.create pn.RowCount 0.)) 
     pn
 

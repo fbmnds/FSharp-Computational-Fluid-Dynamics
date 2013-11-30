@@ -37,6 +37,21 @@ let waitForKey() =
     System.Console.ReadKey() |> ignore
 
 
+let getMatrix (x: JArray) nx ny : DenseMatrix = 
+    let mutable m = DenseMatrix.create nx ny 0.
+    // http://stackoverflow.com/questions/9976018/parsing-multidimensional-json-array-with-newtonsoft-json-net
+    let mutable r = -1
+    let mutable c = -1
+    for i in x do
+        r <- r + 1
+        c <- -1
+        for j in i do
+            c <- c + 1
+            m.At(r, c, (float j))
+    m
+
+
+
 [<EntryPoint>]
 let main argv = 
     printfn "%A" argv
@@ -46,17 +61,19 @@ let main argv =
         |> File.ReadAllText
 
     let t = JsonConvert.DeserializeObject<Test_11_3> test_11_3
+    // printfn "t.b0 : \n %A" (float (t.p0.First.First))
 
-    //let b0 = buildUpB t.rho t.dt t.dx t.dy t.u0 t.v0
+    let u0 = getMatrix t.u0 t.nx t.ny
+    let v0 = getMatrix t.v0 t.nx t.ny
+    let b0 = getMatrix t.u0 t.nx t.ny
+    let b0_ = buildUpB t.rho t.dt t.dx t.dy u0 v0
 
-    //printfn "b0 : \n %A" b0
-    printfn "t.b0 : \n %A" (float (t.p0.First.First))
+    printfn "b0 : \n %A" b0
+    printfn "b0_ : \n %A" b0_
     
-    // http://stackoverflow.com/questions/9976018/parsing-multidimensional-json-array-with-newtonsoft-json-net
-    for i in (t.p0) do
-        for j in i do
-            printf " %.0f " (float j)
-        printfn ""
-    
+    let u_nt = getMatrix t.u_nt t.nx t.ny
+    printfn "u_nt : \n %A" u_nt
+    printfn "t.u_nt : \n %A" t.u_nt
+
     waitForKey()
     0 // Exitcode aus ganzen Zahlen zurückgeben
