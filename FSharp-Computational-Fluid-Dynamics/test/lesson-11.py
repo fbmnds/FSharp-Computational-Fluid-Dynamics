@@ -266,6 +266,14 @@ print_u (f, ",\n \"v0\" : [", v, nx, ny, "]")
 
 u, v, p, b0 = cavityFlow(nt, u, v, dt, dx, dy, p, rho, nu)
 
+u2 = np.zeros((ny, nx))
+u2 = u**2
+print_u (f, ",\n \"u2\" : [", u2, nx, ny, "]")
+
+uu = np.zeros((ny, nx))
+uu = u*u
+print_u (f, ",\n \"uu\" : [", uu, nx, ny, "]")
+
 results(f,nx,dx,ny,dy,dt,u,v,p,b0)
 
 f.close()
