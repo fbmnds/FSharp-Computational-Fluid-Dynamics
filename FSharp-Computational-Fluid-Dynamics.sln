@@ -7,6 +7,7 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharp-Computational-Fluid-
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{E28DDC72-56A9-4ED8-AADD-E11DC9A3BF6C}"
 	ProjectSection(SolutionItems) = preProject
+		FSharp-Computational-Fluid-Dynamics\test\lesson-11.py = FSharp-Computational-Fluid-Dynamics\test\lesson-11.py
 		test\lesson-12.py = test\lesson-12.py
 		test\test-12-10.json = test\test-12-10.json
 	EndProjectSection

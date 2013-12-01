@@ -123,6 +123,24 @@ let main argv =
     /// => pressPoisson OK
     /////////////////////////
 
+    /////////////////////
+    /// verfy cavity flow 
+    /////////////////////
+
+    let p0 = getMatrix t.p0 t.nx t.ny
+    let u0 = getMatrix t.u0 t.nx t.ny
+    let v0 = getMatrix t.v0 t.nx t.ny
+    let (u,v,p,b) = cavityFlow t.rho t.nu t.nit t.nt t.dt t.dx t.dy t.nx t.ny p0 u0 v0
+    printfn "\nmax diff of t.u_nt, u : %.10f\n" (maxDiff t.u_nt u)
+    printfn "\n--------------------------"
+    printfn "\nmax diff of t.v_nt, v : %.10f\n" (maxDiff t.v_nt v)
+    printfn "\n--------------------------"
+    printfn "\nmax diff of t.p_nt, p : %.10f\n" (maxDiff t.p_nt p)
+    printfn "\n--------------------------"
+
+    ///////////////////////
+    /// => cavity flow OK
+    ///////////////////////
 
     waitForKey()
     0 // Exitcode aus ganzen Zahlen zurückgeben

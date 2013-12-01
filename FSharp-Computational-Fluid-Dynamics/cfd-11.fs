@@ -63,3 +63,56 @@ let pressPoisson dx dy (b: DenseMatrix) (p: DenseMatrix) =
     pn.SetColumn((dimY2+1), (DenseVector.create pn.RowCount 0.)) 
     pn
 
+
+let cavityFlow rho nu nit nt dt dx dy nx ny p_ u_ v_ =
+    let dtdx = dt/dx
+    let dtdy = dt/dy
+    let dtrhodx = dt/(2.*rho*dx)
+    let dtrhody = dt/(2.*rho*dy)
+    let nudtdx2 = (nu*dt)/(dx*dx)
+    let nudtdy2 = (nu*dt)/(dy*dy)
+    let mutable p = p_
+    let mutable u = u_
+    let mutable v = v_
+    let mutable b = buildUpB rho dt dx dy u v
+    for i1 in [0..nt-1] do
+        if i1 > 0 then b <- buildUpB rho dt dx dy u v
+        for i2 in [0..nit-1] do
+            p <- pressPoisson dx dy b p
+        let Bu = (SM_10 u)
+        let Du = (SM_01 u)
+        let Eu = (SM_11 u)
+        let Fu = (SM_21 u)
+        let Hu = (SM_12 u)
+        let Bv = (SM_10 v)
+        let Dv = (SM_01 v)
+        let Ev = (SM_11 v)
+        let Fv = (SM_21 v)
+        let Hv = (SM_12 v)
+        let Bp = (SM_10 p)
+        let Dp = (SM_01 p)
+        let Fp = (SM_21 p)
+        let Hp = (SM_12 p)
+        let EuEuDu = Eu.PointwiseMultiply(Eu - Du) :?> DenseMatrix
+        let EvEuBu = Ev.PointwiseMultiply(Eu - Bu) :?> DenseMatrix
+        let FpDp = Fp - Dp
+        let Fu2EuDu = Fu - 2.*Eu + Du
+        let Hu2EuBu = Hu - 2.*Eu + Bu
+        let HpBp = Hp - Bp
+        let EuEvDv = Eu.PointwiseMultiply(Ev - Dv) :?> DenseMatrix
+        let EvEvBv = Ev.PointwiseMultiply(Ev - Bv) :?> DenseMatrix
+        let Fv2EvDv = Fv - 2.*Ev + Dv
+        let Hv2EvBv = Hv - 2.*Ev + Bv
+        let ux = Eu - dtdx*EuEuDu - dtdy*EvEuBu - dtrhodx*FpDp + nudtdx2*Fu2EuDu + nudtdy2*Hu2EuBu
+        let vx = Ev - dtdx*EuEvDv - dtdy*EvEvBv - dtrhody*HpBp + nudtdx2*Fv2EvDv + nudtdy2*Hv2EvBv
+        u.SetSubMatrix(1, (u.RowCount-2), 1, (u.ColumnCount-2), ux)
+        v.SetSubMatrix(1, (v.RowCount-2), 1, (v.ColumnCount-2), vx)
+        u.SetRow(0, (DenseVector.create u.RowCount 0.))
+        u.SetColumn(0, (DenseVector.create u.ColumnCount 0.))
+        u.SetColumn(u.ColumnCount-1, (DenseVector.create u.ColumnCount 1.)) // ## in last line overwritten below
+        v.SetRow(0, (DenseVector.create v.RowCount 0.))
+        v.SetRow(v.RowCount-1, (DenseVector.create v.RowCount 0.))
+        v.SetColumn(0, (DenseVector.create v.ColumnCount 0.))
+        v.SetColumn(v.ColumnCount-1, (DenseVector.create v.ColumnCount 0.))
+        u.SetRow(u.RowCount-1, (DenseVector.create u.RowCount 0.))
+    (u,v,p,b)
