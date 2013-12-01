@@ -33,7 +33,25 @@ type Test_11_3 = { nx : int;
                    p_nt : JArray;
                    p_py : JArray }
 
-                   
+                  
+type Test_11_700 = { nx : int; 
+                   dx : float; 
+                   ny : int; 
+                   dy : float; 
+                   nt : int; 
+                   dt : float; 
+                   rho : float; 
+                   nu : float; 
+                   nit : int;
+                   p0 : JArray;
+                   u0 : JArray;
+                   v0 : JArray;
+                   u_nt : JArray;
+                   v_nt : JArray;
+                   b0 : JArray;
+                   b_nt : JArray;
+                   p_nt : JArray;
+                   p_py : JArray }
 let waitForKey() =
     printf "\n... enter key"
     System.Console.ReadKey() |> ignore
@@ -141,6 +159,31 @@ let main argv =
     ///////////////////////
     /// => cavity flow OK
     ///////////////////////
+
+    let test700 () = 
+        printfn "\nRegression test against test-11-700.json:"
+        printfn "\n-----------------------------------------"
+        let test_11_700 =
+            __SOURCE_DIRECTORY__ + @"\test\test-11-700.json"
+            |> File.ReadAllText
+
+        let t700 = JsonConvert.DeserializeObject<Test_11_700> test_11_700
+
+
+        let p0 = getMatrix t.p0 t.nx t.ny
+        let u0 = getMatrix t.u0 t.nx t.ny
+        let v0 = getMatrix t.v0 t.nx t.ny
+        let (u,v,p,b) = cavityFlow t.rho t.nu t.nit t.nt t.dt t.dx t.dy t.nx t.ny p0 u0 v0
+        printfn "\nmax diff of t.u_nt, u : %.10f\n" (maxDiff t.u_nt u)
+        printfn "\n--------------------------"
+        printfn "\nmax diff of t.v_nt, v : %.10f\n" (maxDiff t.v_nt v)
+        printfn "\n--------------------------"
+        printfn "\nmax diff of t.p_nt, p : %.10f\n" (maxDiff t.p_nt p)
+        printfn "\n--------------------------"
+
+
+    test700()
+
 
     waitForKey()
     0 // Exitcode aus ganzen Zahlen zurückgeben
