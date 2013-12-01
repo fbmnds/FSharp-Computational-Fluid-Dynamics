@@ -23,12 +23,12 @@ let buildUpB rho dt dx dy (u: DenseMatrix) (v: DenseMatrix) =
 
     let x() : DenseMatrix = 
         let A = (SM_21 u) - (SM_01 u)
-        let AA = A * A
+        let AA = A.PointwiseMultiply(A) :?> DenseMatrix
         let B = (SM_12 v) - (SM_10 v)
-        let BB = B * B
+        let BB = B.PointwiseMultiply(B) :?> DenseMatrix
         let C = (SM_12 u) - (SM_10 u)
         let D = (SM_21 v) - (SM_01 v)
-        let CD = C * D 
+        let CD = C.PointwiseMultiply(D) :?> DenseMatrix 
         let dxdt = rho/(2.*dx*dt)
         let dydt = rho/(2.*dy*dt)
         let dxdx = rho/(4.*dx*dx)

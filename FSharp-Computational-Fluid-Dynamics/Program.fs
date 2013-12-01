@@ -79,24 +79,23 @@ let main argv =
     let unt = getMatrix t.u_nt t.nx t.ny
     let vnt = getMatrix t.v_nt t.nx t.ny
 
+    //////////////////////////////////////
+    /// verifying the boundary condition
+    //////////////////////////////////////
+
     let bnt = getMatrix t.b_nt t.nx t.ny
     let bnt_ = buildUpB t.rho t.dt t.dx t.dy unt vnt
 
-    //printfn "bnt_ : \n %A" bnt_
-    
-    printfn "max diff of t.b_nt, bnt_ : %.3f" (maxDiff t.b_nt bnt_)
-
+    printfn "\nmax diff of t.b_nt, bnt_ : %.10f\n" (maxDiff t.b_nt bnt_)
+    printfn "\n--------------------------"
     for i in [0..bnt_.RowCount-1] do
         for j in [0..bnt_.ColumnCount-1] do
-            printf "%.5f " ((bnt_.At(i,j)) - (bnt.At(i,j)))
+            printf "%.10f " ((bnt_.At(i,j)) - (bnt.At(i,j)))
         printfn ""
 
-
-    printfn "\n unt \n-----\n"
-    for i in [0..bnt_.RowCount-1] do
-        for j in [0..bnt_.ColumnCount-1] do
-            printf "%.10f " (unt.At(i,j))
-        printfn ""
+    ///////////////////////////////////
+    /// => boundary condition is OK
+    ///////////////////////////////////
 
     ////////////////////////
     /// verify pressPoission
@@ -124,27 +123,6 @@ let main argv =
     /// => pressPoisson OK
     /////////////////////////
 
-    ////////////////////////////////
-    /// verify matrix multiplication
-    ////////////////////////////////
-
-    let u2 = getMatrix t.u2 t.nx t.ny
-    let uu = getMatrix t.uu t.nx t.ny
-    let u2_ = unt * unt
-
-    /// Math.NET and Python differ:
-    printfn "\nMath.NET and Python differ:"
-    for i in [0..u2.RowCount-1] do
-        for j in [0..u2.ColumnCount-1] do
-            printf "%.7f " ((u2_.At(i,j)) - (u2.At(i,j)))
-        printfn ""    
-
-    /// Python is consistent: u*u = u**2
-    printfn "\nPython is consistent: u*u = u**2:"
-    for i in [0..u2.RowCount-1] do
-        for j in [0..u2.ColumnCount-1] do
-            printf "%.7f " ((uu.At(i,j)) - (u2.At(i,j)))
-        printfn "" 
 
     waitForKey()
     0 // Exitcode aus ganzen Zahlen zurückgeben
