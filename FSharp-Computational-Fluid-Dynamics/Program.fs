@@ -50,11 +50,21 @@ let getMatrix (x: JArray) nx ny : DenseMatrix =
             m.At(r, c, (float j))
     m
 
+let maxMatrix (x: DenseMatrix)  = 
+    let mutable max = x.At(0,0)
+    for i in [0..x.RowCount-1] do
+        for j in [0..x.ColumnCount-1] do
+            if x.At(i,j) > max then max <- x.At(i,j)
+    max
+
+let maxDiff (xj: JArray) (y: DenseMatrix) =
+    let x = getMatrix xj y.RowCount y.ColumnCount
+    let d = maxMatrix (((x - y) |> Matrix.map abs) :?> DenseMatrix)
+    d
 
 
 [<EntryPoint>]
 let main argv = 
-    printfn "%A" argv
 
     let test_11_3 =
         __SOURCE_DIRECTORY__ + @"\test\test-11-3.json"
@@ -64,16 +74,59 @@ let main argv =
     // printfn "t.b0 : \n %A" (float (t.p0.First.First))
 
     let u0 = getMatrix t.u0 t.nx t.ny
+    let unt = getMatrix t.u_nt t.nx t.ny
+
     let v0 = getMatrix t.v0 t.nx t.ny
+    let vnt = getMatrix t.v_nt t.nx t.ny
+    
     let b0 = getMatrix t.u0 t.nx t.ny
+    let bnt = getMatrix t.b_nt t.nx t.ny
+    
     let b0_ = buildUpB t.rho t.dt t.dx t.dy u0 v0
+    let bnt_ = buildUpB t.rho t.dt t.dx t.dy unt vnt
 
     printfn "b0 : \n %A" b0
     printfn "b0_ : \n %A" b0_
+    printfn "bnt_ : \n %A" bnt_
     
+    printfn "max diff of t.b_nt, bnt_ : %.3f" (maxDiff t.b_nt bnt_)
+(*
     let u_nt = getMatrix t.u_nt t.nx t.ny
     printfn "u_nt : \n %A" u_nt
     printfn "t.u_nt : \n %A" t.u_nt
+*)
+
+    for i in [0..bnt_.RowCount-1] do
+        for j in [0..bnt_.ColumnCount-1] do
+            printf "%.3f " ((bnt_.At(i,j)) - (bnt.At(i,j)))
+        printfn ""
+
+    ////////////////////////
+    /// verify pressPoission
+    ////////////////////////
+
+    let pnt = getMatrix t.p_nt t.nx t.ny
+    let ppy = getMatrix t.p_py t.nx t.ny
+
+    
+    /// iterate 'nit' times: 
+    let pP dx dy b p_ =
+        let mutable p = p_
+        for q in [0..t.nit-1] do
+            let mutable pn = p
+            p <- pressPoisson dx dy b p
+        p
+
+    let ppy_ = pP t.dx t.dy bnt pnt
+
+    for i in [0..ppy_.RowCount-1] do
+        for j in [0..ppy_.ColumnCount-1] do
+            printf "%.7f " ((ppy_.At(i,j)) - (ppy.At(i,j)))
+        printfn ""
+
+    /////////////////////////
+    /// => pressPoisson OK
+    /////////////////////////
 
     waitForKey()
     0 // Exitcode aus ganzen Zahlen zurückgeben
